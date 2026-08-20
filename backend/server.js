@@ -16,9 +16,69 @@ console.log("JWT_SECRET loaded:", !!process.env.JWT_SECRET);
 console.log("MONGO_URI loaded:", !!process.env.MONGO_URI);
 console.log("GEMINI_API_KEY loaded:", !!process.env.GEMINI_API_KEY);
 
+const allowedOrigins = [
+   "http://localhost:5173",
+   "https://ai-interview-simulator-frontend-v2.onrender.com"
+];
+
 app.use(
    cors({
-      origin: process.env.FRONTEND_URL || "http://localhost:5173",
+      origin: (origin, callback) => {
+
+         if (!origin) {
+            return callback(null, true);
+         }
+
+         if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+         }
+
+         console.error(
+            "CORS blocked origin:",
+            origin
+         );
+
+         return callback(
+            new Error(
+               `CORS blocked origin: ${origin}`
+            )
+         );
+      },
+
+      credentials: true
+   })
+);
+
+app.options("*", cors());
+
+app.use(express.json());
+
+app.use(
+   cors({
+      origin: (origin, callback) => {
+
+         // Allow requests without an Origin header
+         // such as Postman/server-to-server requests.
+         if (!origin) {
+            return callback(null, true);
+         }
+
+         if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+         }
+
+         console.error(
+            "CORS blocked origin:",
+            origin
+         );
+
+         return callback(
+            new Error(
+               `CORS blocked origin: ${origin}`
+            )
+         );
+      },
+
       credentials: true
    })
 );
